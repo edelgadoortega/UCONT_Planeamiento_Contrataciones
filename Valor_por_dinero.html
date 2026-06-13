@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Valor por Dinero</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #5e6a7d;
+      --line: #d8deea;
+      --brand: #1d6fb8;
+      --brand-dark: #174f82;
+      --ok: #17805d;
+      --warn: #a35d00;
+      --bad: #b42318;
+      --soft: #eef6fd;
+      --soft-ok: #eaf8f1;
+      --shadow: 0 12px 28px rgba(31, 45, 61, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: linear-gradient(135deg, #15598f, #247dbf);
+      color: #fff;
+      padding: 30px 20px;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      line-height: 1.12;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    main {
+      padding: 22px 0 42px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      padding: 18px;
+    }
+
+    .intro {
+      background: #fff;
+      border-left: 5px solid var(--brand);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid #c7d0df;
+      border-radius: 6px;
+      color: var(--ink);
+      font: inherit;
+      padding: 9px 10px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 3px solid rgba(29, 111, 184, 0.18);
+      border-color: var(--brand);
+    }
+
+    .field-note {
+      color: var(--muted);
+      display: block;
+      font-size: 0.78rem;
+      margin-top: 5px;
+    }
+
+    .option-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .option-head {
+      align-items: center;
+      background: var(--soft);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 15px;
+    }
+
+    .option-body {
+      padding: 15px;
+    }
+
+    .cost-item {
+      border: 1px solid #dce3ee;
+      border-radius: 8px;
+      margin-top: 12px;
+      padding: 13px;
+      background: #fbfcfe;
+    }
+
+    .cost-item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .years-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      background: var(--brand);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      min-height: 40px;
+      padding: 9px 14px;
+    }
+
+    button:hover {
+      background: var(--brand-dark);
+    }
+
+    button.secondary {
+      background: #e8edf5;
+      color: #1f314a;
+    }
+
+    button.secondary:hover {
+      background: #dbe3ef;
+    }
+
+    button.danger {
+      background: #f7e8e7;
+      color: var(--bad);
+    }
+
+    button.danger:hover {
+      background: #f0d2cf;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .messages {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .message {
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+    }
+
+    .message.error {
+      background: #fdebea;
+      color: #8f1c13;
+      border: 1px solid #f5c2bd;
+    }
+
+    .message.warning {
+      background: #fff4df;
+      color: #744000;
+      border: 1px solid #f2cf8f;
+    }
+
+    .message.info {
+      background: #eaf3fb;
+      color: #164c76;
+      border: 1px solid #bfd8ee;
+    }
+
+    .best-box {
+      background: var(--soft-ok);
+      border: 1px solid #b7e4cf;
+      border-radius: 8px;
+      color: #0f5b40;
+      font-weight: 700;
+      padding: 13px 14px;
+      margin-bottom: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      min-width: 940px;
+      width: 100%;
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: #eef2f7;
+      color: #27384e;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      background: #edf2f8;
+      color: #2e415c;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+
+    .badge.best {
+      background: #dff5ea;
+      color: #116247;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .chart-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 280px;
+    }
+
+    .method {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .formula {
+      background: #f2f5f9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: "Courier New", monospace;
+      overflow-x: auto;
+    }
+
+    .print-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .grid.two, .grid.three, .charts, .method {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 14px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      header, section {
+        box-shadow: none;
+      }
+
+      button, .toolbar.no-print {
+        display: none !important;
+      }
+
+      .option-card {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Simulador de Valor por Dinero - Costo del Ciclo de Vida Actualizado</h1>
+      <p>Compara alternativas trayendo al presente sus costos futuros y descubre cuál ofrece mejor valor por dinero.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <h2>Instrucciones</h2>
+      <p>Este simulador permite comparar bienes o servicios considerando costo de adquisición, operación, mantenimiento, soporte, reposición, disposición final y otros costos futuros. Los costos de años posteriores se actualizan con una tasa de descuento para expresarlos en valor presente.</p>
+      <p>El menor precio inicial no siempre representa el mejor valor por dinero: una opción con mayor adquisición puede convenir si sus costos futuros son menores o si conserva mayor valor residual.</p>
+    </section>
+
+    <section>
+      <h2>Datos generales</h2>
+      <div class="grid two">
+        <div>
+          <label for="analysisName">Nombre del bien o servicio</label>
+          <input id="analysisName" type="text" placeholder="Ej.: Servicio de impresión institucional">
+        </div>
+        <div>
+          <label for="analysisDate">Fecha del análisis</label>
+          <input id="analysisDate" type="date">
+        </div>
+        <div>
+          <label for="purpose">Finalidad pública o necesidad a atender</label>
+          <textarea id="purpose" placeholder="Describe la necesidad pública, funcional o educativa que se busca atender."></textarea>
+        </div>
+        <div class="grid two">
+          <div>
+            <label for="optionCount">Número de opciones</label>
+            <input id="optionCount" type="number" min="2" max="5" step="1" value="2">
+            <span class="field-note">Mínimo 2, máximo 5.</span>
+          </div>
+          <div>
+            <label for="currency">Moneda</label>
+            <input id="currency" type="text" value="S/" readonly>
+          </div>
+          <div>
+            <label for="discountRate">Tasa de descuento anual</label>
+            <input id="discountRate" type="number" min="0" step="0.01" value="5">
+            <span class="field-note">Ingrese porcentaje. Valor por defecto: 5%.</span>
+          </div>
+          <div>
+            <label for="usefulLife">Vida útil</label>
+            <input id="usefulLife" type="number" min="1" step="1" value="5">
+            <span class="field-note">Número entero de años.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="option-head" style="margin: -18px -18px 14px;">
+        <div>
+          <h2 style="margin-bottom: 4px;">Opciones y costos futuros</h2>
+          <p style="margin: 0; color: #43617d;">Cada opción puede tener hasta 5 ítems de costos futuros. Los campos vacíos se interpretan como cero.</p>
+        </div>
+      </div>
+      <div id="optionsContainer"></div>
+    </section>
+
+    <section>
+      <h2>Resultados</h2>
+      <div id="messages" class="messages"></div>
+      <div id="bestBox" class="best-box"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Opción</th>
+              <th>Adquisición</th>
+              <th>VP costos futuros</th>
+              <th>VP residual</th>
+              <th>CCV total</th>
+              <th>CAE</th>
+              <th>Ahorro</th>
+              <th>Ranking</th>
+              <th>Resultado</th>
+              <th>Comentario automático</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="charts">
+        <div class="chart-panel">
+          <h3>CCV por opción</h3>
+          <canvas id="ccvChart" width="700" height="320" aria-label="Gráfico de barras del CCV por opción"></canvas>
+        </div>
+        <div class="chart-panel">
+          <h3>Composición de costos</h3>
+          <canvas id="compositionChart" width="700" height="320" aria-label="Gráfico de composición de costos por opción"></canvas>
+        </div>
+        <div class="chart-panel" style="grid-column: 1 / -1;">
+          <h3>Costos anuales actualizados</h3>
+          <canvas id="annualChart" width="1100" height="320" aria-label="Gráfico de costos anuales actualizados"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Explicación metodológica</h2>
+      <div class="method">
+        <div>
+          <p>El costo de adquisición ocurre en el año 0, por eso no se descuenta. Los costos futuros se traen al presente usando la tasa de descuento.</p>
+          <p>La decisión final también debe considerar cumplimiento técnico, calidad, riesgos y finalidad pública. El valor por dinero no equivale necesariamente al menor precio inicial.</p>
+        </div>
+        <div class="formula">
+          VPt = Ct / (1 + r)^t<br>
+          CCV = Ca + Σ [ Ct / (1 + r)^t ]<br>
+          CCV = Ca + Σ [ Ct / (1 + r)^t ] - [ VRn / (1 + r)^n ]<br>
+          CAE = CCV × r(1 + r)^n / ((1 + r)^n - 1)
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Exportación</h2>
+      <p>Puede imprimir los resultados o guardarlos como PDF desde el cuadro de impresión del navegador.</p>
+      <div class="toolbar no-print">
+        <button id="printButton" type="button">Imprimir o guardar como PDF</button>
+        <button id="downloadButton" class="secondary" type="button">Descargar resultados CSV</button>
+        <button id="sampleButton" class="secondary" type="button">Cargar ejemplo educativo</button>
+      </div>
+      <div class="print-meta" id="printMeta"></div>
+    </section>
+
+    <section>
+      <h2>Prompt para informe en ChatGPT</h2>
+      <p>Use este prompt para solicitar un informe detallado sobre valor por dinero con base en los resultados obtenidos en el simulador.</p>
+      <textarea id="reportPrompt" readonly style="min-height: 220px;"></textarea>
+      <div class="toolbar no-print">
+        <button id="copyPromptButton" type="button">Copiar prompt para ChatGPT</button>
+        <span class="field-note" id="copyStatus"></span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const MAX_OPTIONS = 5;
+    const MIN_OPTIONS = 2;
+    const MAX_ITEMS = 5;
+    const costTypes = ["Operativo", "Mantenimiento", "Soporte", "Consumibles", "Otros"];
+    const colors = ["#1d6fb8", "#17805d", "#c77700", "#8e55b8", "#d0483e"];
+
+    const state = {
+      optionCount: 2,
+      usefulLife: 5,
+      options: []
+    };
+
+    const el = {
+      analysisName: document.getElementById("analysisName"),
+      analysisDate: document.getElementById("analysisDate"),
+      purpose: document.getElementById("purpose"),
+      optionCount: document.getElementById("optionCount"),
+      discountRate: document.getElementById("discountRate"),
+      usefulLife: document.getElementById("usefulLife"),
+      optionsContainer: document.getElementById("optionsContainer"),
+      messages: document.getElementById("messages"),
+      bestBox: document.getElementById("bestBox"),
+      resultsBody: document.getElementById("resultsBody"),
+      ccvChart: document.getElementById("ccvChart"),
+      compositionChart: document.getElementById("compositionChart"),
+      annualChart: document.getElementById("annualChart"),
+      printMeta: document.getElementById("printMeta"),
+      reportPrompt: document.getElementById("reportPrompt"),
+      copyStatus: document.getElementById("copyStatus")
+    };
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function numberValue(value) {
+      if (value === "" || value === null || value === undefined) return 0;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function money(value) {
+      return `S/ ${Number(value || 0).toLocaleString("es-PE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`;
+    }
+
+    function percent(value) {
+      return `${Number(value || 0).toLocaleString("es-PE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}%`;
+    }
+
+    function makeEmptyCostItem(index) {
+      return {
+        type: costTypes[Math.min(index, costTypes.length - 1)],
+        description: "",
+        yearlyCosts: Array.from({ length: state.usefulLife }, () => 0)
+      };
+    }
+
+    function makeEmptyOption(index) {
+      return {
+        name: `Opción ${index + 1}`,
+        description: "",
+        acquisitionCost: "",
+        residualValue: "",
+        costItems: [makeEmptyCostItem(0)]
+      };
+    }
+
+    function normalizeYearlyCosts(item) {
+      const current = item.yearlyCosts || [];
+      item.yearlyCosts = Array.from({ length: state.usefulLife }, (_, index) => numberValue(current[index]));
+    }
+
+    function ensureStateShape() {
+      const requestedCount = Math.min(MAX_OPTIONS, Math.max(MIN_OPTIONS, parseInt(el.optionCount.value, 10) || MIN_OPTIONS));
+      state.optionCount = requestedCount;
+      el.optionCount.value = requestedCount;
+
+      const requestedLife = Math.max(1, parseInt(el.usefulLife.value, 10) || 1);
+      state.usefulLife = requestedLife;
+      el.usefulLife.value = requestedLife;
+
+      while (state.options.length < requestedCount) {
+        state.options.push(makeEmptyOption(state.options.length));
+      }
+      state.options = state.options.slice(0, requestedCount);
+      state.options.forEach(option => option.costItems.forEach(normalizeYearlyCosts));
+    }
+
+    function renderOptions() {
+      ensureStateShape();
+      el.optionsContainer.innerHTML = "";
+
+      state.options.forEach((option, optionIndex) => {
+        const card = document.createElement("div");
+        card.className = "option-card";
+        card.innerHTML = `
+          <div class="option-head">
+            <h3>${option.name || `Opción ${optionIndex + 1}`}</h3>
+            <span class="badge">${option.costItems.length} ítem(s) de costo</span>
+          </div>
+          <div class="option-body">
+            <div class="grid three">
+              <div>
+                <label>Nombre de la opción</label>
+                <input data-field="name" data-option="${optionIndex}" type="text" value="${escapeHtml(option.name)}">
+              </div>
+              <div>
+                <label>Costo de adquisición inicial</label>
+                <input data-field="acquisitionCost" data-option="${optionIndex}" type="number" min="0" step="0.01" value="${option.acquisitionCost}">
+                <span class="field-note">Obligatorio. Ocurre en el año 0.</span>
+              </div>
+              <div>
+                <label>Valor residual opcional</label>
+                <input data-field="residualValue" data-option="${optionIndex}" type="number" min="0" step="0.01" value="${option.residualValue}">
+              </div>
+              <div style="grid-column: 1 / -1;">
+                <label>Descripción breve</label>
+                <textarea data-field="description" data-option="${optionIndex}">${escapeHtml(option.description)}</textarea>
+              </div>
+            </div>
+            <div class="cost-items" id="costItems-${optionIndex}"></div>
+            <div class="toolbar">
+              <button type="button" class="secondary" data-action="add-cost" data-option="${optionIndex}" ${option.costItems.length >= MAX_ITEMS ? "disabled" : ""}>Agregar ítem de costo</button>
+            </div>
+          </div>
+        `;
+        el.optionsContainer.appendChild(card);
+
+        const itemsContainer = card.querySelector(`#costItems-${optionIndex}`);
+        option.costItems.forEach((item, itemIndex) => {
+          const itemNode = document.createElement("div");
+          itemNode.className = "cost-item";
+          itemNode.innerHTML = `
+            <div class="cost-item-head">
+              <h3>Ítem de costo ${itemIndex + 1}</h3>
+              <button type="button" class="danger" data-action="remove-cost" data-option="${optionIndex}" data-item="${itemIndex}" ${option.costItems.length === 1 ? "disabled" : ""}>Eliminar</button>
+            </div>
+            <div class="grid two">
+              <div>
+                <label>Tipo de costo</label>
+                <select data-field="costType" data-option="${optionIndex}" data-item="${itemIndex}">
+                  ${costTypes.map(type => `<option value="${type}" ${item.type === type ? "selected" : ""}>${type}</option>`).join("")}
+                </select>
+              </div>
+              <div>
+                <label>Descripción</label>
+                <input data-field="costDescription" data-option="${optionIndex}" data-item="${itemIndex}" type="text" value="${escapeHtml(item.description)}" placeholder="Ej.: mantenimiento preventivo">
+              </div>
+            </div>
+            <div class="years-grid">
+              ${item.yearlyCosts.map((cost, yearIndex) => `
+                <div>
+                  <label>Año ${yearIndex + 1}</label>
+                  <input data-field="yearlyCost" data-option="${optionIndex}" data-item="${itemIndex}" data-year="${yearIndex}" type="number" min="0" step="0.01" value="${cost || ""}">
+                </div>
+              `).join("")}
+            </div>
+          `;
+          itemsContainer.appendChild(itemNode);
+        });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function readInputChange(target) {
+      const optionIndex = Number(target.dataset.option);
+      const itemIndex = Number(target.dataset.item);
+      const yearIndex = Number(target.dataset.year);
+      const field = target.dataset.field;
+
+      if (!field) return;
+      const option = state.options[optionIndex];
+      if (!option) return;
+
+      if (["name", "description", "acquisitionCost", "residualValue"].includes(field)) {
+        option[field] = target.value;
+      }
+
+      if (field === "costType") {
+        option.costItems[itemIndex].type = target.value;
+      }
+
+      if (field === "costDescription") {
+        option.costItems[itemIndex].description = target.value;
+      }
+
+      if (field === "yearlyCost") {
+        option.costItems[itemIndex].yearlyCosts[yearIndex] = numberValue(target.value);
+      }
+    }
+
+    function validateAnalysis() {
+      const errors = [];
+      const warnings = [];
+      const rate = numberValue(el.discountRate.value);
+      const life = parseInt(el.usefulLife.value, 10);
+      const optionCount = parseInt(el.optionCount.value, 10);
+
+      if (el.discountRate.value === "") errors.push("La tasa de descuento no puede estar vacía.");
+      if (rate < 0) errors.push("La tasa de descuento debe ser mayor o igual a 0.");
+      if (!Number.isInteger(life) || life <= 0) errors.push("La vida útil debe ser un número entero mayor a 0.");
+      if (!Number.isInteger(optionCount) || optionCount < MIN_OPTIONS || optionCount > MAX_OPTIONS) errors.push("El número de opciones debe estar entre 2 y 5.");
+
+      state.options.forEach((option, index) => {
+        const acquisition = numberValue(option.acquisitionCost);
+        const residual = numberValue(option.residualValue);
+        if (option.acquisitionCost === "") errors.push(`El costo de adquisición es obligatorio para la opción ${index + 1}.`);
+        if (acquisition < 0) errors.push(`El costo de adquisición de la opción ${index + 1} no puede ser negativo.`);
+        if (residual < 0) errors.push(`El valor residual de la opción ${index + 1} no puede ser negativo.`);
+        if (residual > acquisition && acquisition > 0) {
+          warnings.push(`El valor residual de la opción ${index + 1} supera su costo de adquisición. Revíselo; el simulador permite continuar.`);
+        }
+        option.costItems.forEach((item, itemIndex) => {
+          item.yearlyCosts.forEach((cost, yearIndex) => {
+            if (numberValue(cost) < 0) {
+              errors.push(`El costo del ítem ${itemIndex + 1}, año ${yearIndex + 1}, de la opción ${index + 1} no puede ser negativo.`);
+            }
+          });
+        });
+      });
+
+      return { errors, warnings };
+    }
+
+    function calculateResults() {
+      const r = numberValue(el.discountRate.value) / 100;
+      const n = state.usefulLife;
+      const rows = state.options.map((option, index) => {
+        const acquisition = numberValue(option.acquisitionCost);
+        const residual = numberValue(option.residualValue);
+        const yearlyTotals = Array.from({ length: n }, (_, yearIndex) => {
+          return option.costItems.reduce((sum, item) => sum + numberValue(item.yearlyCosts[yearIndex]), 0);
+        });
+        const presentValues = yearlyTotals.map((cost, yearIndex) => cost / Math.pow(1 + r, yearIndex + 1));
+        const futurePV = presentValues.reduce((sum, value) => sum + value, 0);
+        const residualPV = residual / Math.pow(1 + r, n);
+        const ccv = acquisition + futurePV - residualPV;
+        const cae = equivalentAnnualCost(ccv, r, n);
+        return {
+          index,
+          name: option.name || `Opción ${index + 1}`,
+          acquisition,
+          residual,
+          yearlyTotals,
+          presentValues,
+          futurePV,
+          residualPV,
+          ccv,
+          cae,
+          rank: 0,
+          saving: 0,
+          savingPct: 0
+        };
+      });
+
+      const sorted = [...rows].sort((a, b) => a.ccv - b.ccv);
+      const maxCCV = Math.max(...rows.map(row => row.ccv));
+      sorted.forEach((row, rankIndex) => {
+        row.rank = rankIndex + 1;
+      });
+      rows.forEach(row => {
+        const ranked = sorted.find(item => item.index === row.index);
+        row.rank = ranked.rank;
+        row.saving = maxCCV - row.ccv;
+        row.savingPct = maxCCV > 0 ? (row.saving / maxCCV) * 100 : 0;
+      });
+      return rows;
+    }
+
+    function equivalentAnnualCost(ccv, r, n) {
+      if (n <= 0) return 0;
+      if (r === 0) return ccv / n;
+      const factor = (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      return ccv * factor;
+    }
+
+    function renderMessages(validation) {
+      el.messages.innerHTML = "";
+      const intro = document.createElement("div");
+      intro.className = "message info";
+      intro.textContent = "La mejor opción de valor por dinero es aquella que presenta el menor costo del ciclo de vida actualizado, siempre que cumpla con las condiciones técnicas, funcionales y de calidad requeridas.";
+      el.messages.appendChild(intro);
+
+      [...validation.errors.map(text => ({ text, type: "error" })), ...validation.warnings.map(text => ({ text, type: "warning" }))].forEach(message => {
+        const node = document.createElement("div");
+        node.className = `message ${message.type}`;
+        node.textContent = message.text;
+        el.messages.appendChild(node);
+      });
+    }
+
+    function renderResults() {
+      ensureStateShape();
+      const validation = validateAnalysis();
+      const results = calculateResults();
+      renderMessages(validation);
+
+      const best = [...results].sort((a, b) => a.ccv - b.ccv)[0];
+      const cheapestAcquisition = [...results].sort((a, b) => a.acquisition - b.acquisition)[0];
+      el.bestBox.textContent = validation.errors.length
+        ? "Complete los campos obligatorios y corrija las validaciones para confirmar la mejor opción."
+        : best
+        ? `Mejor valor por dinero: ${best.name}, con CCV actualizado de ${money(best.ccv)}. Recuerde verificar cumplimiento técnico, calidad, riesgos y finalidad pública.`
+        : "Complete los datos para identificar la mejor opción.";
+
+      el.resultsBody.innerHTML = "";
+      results
+        .slice()
+        .sort((a, b) => a.rank - b.rank)
+        .forEach(row => {
+          const tr = document.createElement("tr");
+          const isBest = row.rank === 1;
+          const initialNote = cheapestAcquisition.index === row.index && !isBest
+            ? "Tiene el menor precio inicial, pero no el menor CCV."
+            : "Una opción con mayor precio inicial puede ser conveniente si reduce operación o mantenimiento.";
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(row.name)}</strong></td>
+            <td>${money(row.acquisition)}</td>
+            <td>${money(row.futurePV)}</td>
+            <td>${money(row.residualPV)}</td>
+            <td><strong>${money(row.ccv)}</strong></td>
+            <td>${money(row.cae)}</td>
+            <td>${money(row.saving)}<br><span class="field-note">${percent(row.savingPct)}</span></td>
+            <td><span class="badge ${isBest ? "best" : ""}">#${row.rank}</span></td>
+            <td>${isBest ? '<span class="badge best">Mejor valor por dinero</span>' : '<span class="badge">Alternativa evaluada</span>'}</td>
+            <td>${isBest ? "Presenta el menor costo del ciclo de vida actualizado." : initialNote}</td>
+          `;
+          el.resultsBody.appendChild(tr);
+        });
+
+      drawCCVChart(results);
+      drawCompositionChart(results);
+      drawAnnualChart(results);
+      el.reportPrompt.value = buildReportPrompt(results, validation);
+      el.printMeta.textContent = `Análisis: ${el.analysisName.value || "sin nombre"} | Fecha: ${el.analysisDate.value || todayISO()} | Moneda: S/`;
+    }
+
+    function buildReportPrompt(results, validation) {
+      const sorted = results.slice().sort((a, b) => a.rank - b.rank);
+      const best = sorted[0];
+      const table = sorted.map(row => {
+        return [
+          `Ranking ${row.rank}: ${row.name}`,
+          `Costo de adquisición: ${money(row.acquisition)}`,
+          `VP costos futuros: ${money(row.futurePV)}`,
+          `VP residual: ${money(row.residualPV)}`,
+          `CCV total: ${money(row.ccv)}`,
+          `Costo anual equivalente: ${money(row.cae)}`,
+          `Ahorro frente a la opción más costosa: ${money(row.saving)} (${percent(row.savingPct)})`
+        ].join(" | ");
+      }).join("\n");
+
+      const warningText = validation.errors.length
+        ? `\nAdvertencias de validación pendientes:\n- ${validation.errors.join("\n- ")}\n`
+        : "";
+
+      return `Actúa como especialista en valor por dinero, costo del ciclo de vida y contratación pública. Elabora un informe detallado, claro y pedagógico a partir de los resultados de este simulador.\n\nDatos generales:\n- Bien o servicio: ${el.analysisName.value || "No especificado"}\n- Finalidad pública o necesidad: ${el.purpose.value || "No especificada"}\n- Fecha del análisis: ${el.analysisDate.value || todayISO()}\n- Moneda: Soles, S/\n- Tasa de descuento anual: ${numberValue(el.discountRate.value)}%\n- Vida útil evaluada: ${state.usefulLife} años\n\nResultados calculados:\n${table}\n\nMejor opción según el menor costo del ciclo de vida actualizado: ${best ? best.name : "No determinada"}.\n${warningText}\nRedacta el informe con estas secciones:\n1. Resumen ejecutivo.\n2. Metodología aplicada, explicando VPt = Ct / (1 + r)^t y CCV = Ca + suma de valores presentes de costos futuros.\n3. Análisis comparativo de opciones.\n4. Interpretación del ranking y de los ahorros.\n5. Advertencia pedagógica sobre por qué el menor precio inicial no siempre representa mejor valor por dinero.\n6. Recomendación final, indicando que la decisión debe considerar cumplimiento técnico, calidad, riesgos y finalidad pública.\n7. Limitaciones y supuestos del análisis.\n\nUsa lenguaje formal, comprensible para estudiantes y orientado a toma de decisiones públicas.`;
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function chartFrame(ctx, canvas, title) {
+      ctx.fillStyle = "#172033";
+      ctx.font = "bold 16px Arial";
+      ctx.fillText(title, 18, 24);
+      ctx.strokeStyle = "#d8deea";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(54, 46);
+      ctx.lineTo(54, canvas.height - 48);
+      ctx.lineTo(canvas.width - 18, canvas.height - 48);
+      ctx.stroke();
+    }
+
+    function drawCCVChart(results) {
+      const canvas = el.ccvChart;
+      const ctx = clearCanvas(canvas);
+      chartFrame(ctx, canvas, "Costo del ciclo de vida actualizado");
+      const max = Math.max(1, ...results.map(row => row.ccv));
+      const plotLeft = 70;
+      const plotBottom = canvas.height - 56;
+      const plotTop = 48;
+      const plotWidth = canvas.width - plotLeft - 24;
+      const barGap = 16;
+      const barWidth = Math.max(34, (plotWidth - barGap * (results.length - 1)) / results.length);
+
+      results.forEach((row, index) => {
+        const h = (row.ccv / max) * (plotBottom - plotTop);
+        const x = plotLeft + index * (barWidth + barGap);
+        const y = plotBottom - h;
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fillRect(x, y, barWidth, h);
+        ctx.fillStyle = "#172033";
+        ctx.font = "12px Arial";
+        ctx.fillText(shortLabel(row.name), x, plotBottom + 18);
+        ctx.fillText(money(row.ccv), x, Math.max(42, y - 8));
+      });
+    }
+
+    function drawCompositionChart(results) {
+      const canvas = el.compositionChart;
+      const ctx = clearCanvas(canvas);
+      chartFrame(ctx, canvas, "Adquisición + VP futuros - VP residual");
+      const max = Math.max(1, ...results.map(row => row.acquisition + row.futurePV));
+      const plotLeft = 70;
+      const plotBottom = canvas.height - 56;
+      const plotTop = 48;
+      const plotWidth = canvas.width - plotLeft - 24;
+      const barGap = 16;
+      const barWidth = Math.max(34, (plotWidth - barGap * (results.length - 1)) / results.length);
+
+      results.forEach((row, index) => {
+        const x = plotLeft + index * (barWidth + barGap);
+        let y = plotBottom;
+        const acquisitionH = (row.acquisition / max) * (plotBottom - plotTop);
+        const futureH = (row.futurePV / max) * (plotBottom - plotTop);
+        ctx.fillStyle = "#1d6fb8";
+        y -= acquisitionH;
+        ctx.fillRect(x, y, barWidth, acquisitionH);
+        ctx.fillStyle = "#17805d";
+        y -= futureH;
+        ctx.fillRect(x, y, barWidth, futureH);
+        ctx.fillStyle = "#b42318";
+        const residualH = (row.residualPV / max) * (plotBottom - plotTop);
+        ctx.fillRect(x, plotBottom - residualH, barWidth, 4);
+        ctx.fillStyle = "#172033";
+        ctx.font = "12px Arial";
+        ctx.fillText(shortLabel(row.name), x, plotBottom + 18);
+      });
+
+      drawLegend(ctx, [
+        ["Adquisición", "#1d6fb8"],
+        ["VP futuros", "#17805d"],
+        ["VP residual", "#b42318"]
+      ], canvas.width - 188, 52);
+    }
+
+    function drawAnnualChart(results) {
+      const canvas = el.annualChart;
+      const ctx = clearCanvas(canvas);
+      chartFrame(ctx, canvas, "Valor presente de costos futuros por año");
+      const n = state.usefulLife;
+      const max = Math.max(1, ...results.flatMap(row => row.presentValues));
+      const left = 64;
+      const right = 24;
+      const top = 52;
+      const bottom = canvas.height - 58;
+      const width = canvas.width - left - right;
+
+      results.forEach((row, optionIndex) => {
+        ctx.strokeStyle = colors[optionIndex % colors.length];
+        ctx.fillStyle = colors[optionIndex % colors.length];
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        row.presentValues.forEach((value, yearIndex) => {
+          const x = left + (n === 1 ? width / 2 : (yearIndex / (n - 1)) * width);
+          const y = bottom - (value / max) * (bottom - top);
+          if (yearIndex === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        row.presentValues.forEach((value, yearIndex) => {
+          const x = left + (n === 1 ? width / 2 : (yearIndex / (n - 1)) * width);
+          const y = bottom - (value / max) * (bottom - top);
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      });
+
+      ctx.fillStyle = "#172033";
+      ctx.font = "12px Arial";
+      for (let i = 0; i < n; i++) {
+        const x = left + (n === 1 ? width / 2 : (i / (n - 1)) * width);
+        ctx.fillText(`Año ${i + 1}`, x - 16, bottom + 22);
+      }
+      drawLegend(ctx, results.map((row, index) => [shortLabel(row.name), colors[index % colors.length]]), left, 36);
+    }
+
+    function drawLegend(ctx, items, x, y) {
+      ctx.font = "12px Arial";
+      items.forEach((item, index) => {
+        const yy = y + index * 18;
+        ctx.fillStyle = item[1];
+        ctx.fillRect(x, yy - 10, 12, 12);
+        ctx.fillStyle = "#172033";
+        ctx.fillText(item[0], x + 18, yy);
+      });
+    }
+
+    function shortLabel(label) {
+      const text = String(label || "");
+      return text.length > 13 ? `${text.slice(0, 12)}…` : text;
+    }
+
+    function addCostItem(optionIndex) {
+      const option = state.options[optionIndex];
+      if (!option || option.costItems.length >= MAX_ITEMS) return;
+      option.costItems.push(makeEmptyCostItem(option.costItems.length));
+      renderOptions();
+      renderResults();
+    }
+
+    function removeCostItem(optionIndex, itemIndex) {
+      const option = state.options[optionIndex];
+      if (!option || option.costItems.length <= 1) return;
+      option.costItems.splice(itemIndex, 1);
+      renderOptions();
+      renderResults();
+    }
+
+    function loadSample() {
+      el.analysisName.value = "Compra de equipos de climatización";
+      el.purpose.value = "Mantener condiciones adecuadas de atención al público en oficinas descentralizadas.";
+      el.optionCount.value = 3;
+      el.discountRate.value = 5;
+      el.usefulLife.value = 5;
+      state.options = [
+        {
+          name: "Equipo estándar",
+          description: "Menor precio inicial, mayor consumo y mantenimiento.",
+          acquisitionCost: 42000,
+          residualValue: 4000,
+          costItems: [
+            { type: "Operativo", description: "Energía anual", yearlyCosts: [9200, 9600, 10000, 10400, 10800] },
+            { type: "Mantenimiento", description: "Mantenimiento correctivo", yearlyCosts: [2500, 3000, 3600, 4200, 4800] }
+          ]
+        },
+        {
+          name: "Equipo eficiente",
+          description: "Mayor inversión inicial y menores costos de operación.",
+          acquisitionCost: 52000,
+          residualValue: 6500,
+          costItems: [
+            { type: "Operativo", description: "Energía anual", yearlyCosts: [6000, 6200, 6400, 6600, 6800] },
+            { type: "Mantenimiento", description: "Plan preventivo", yearlyCosts: [1800, 1900, 2000, 2100, 2200] }
+          ]
+        },
+        {
+          name: "Servicio tercerizado",
+          description: "Sin compra directa, pagos anuales por servicio.",
+          acquisitionCost: 12000,
+          residualValue: 0,
+          costItems: [
+            { type: "Soporte", description: "Servicio integral anual", yearlyCosts: [15000, 15500, 16000, 16500, 17000] },
+            { type: "Otros", description: "Supervisión contractual", yearlyCosts: [1300, 1300, 1300, 1300, 1300] }
+          ]
+        }
+      ];
+      renderOptions();
+      renderResults();
+    }
+
+    function downloadResultsCSV() {
+      const validation = validateAnalysis();
+      const results = calculateResults().sort((a, b) => a.rank - b.rank);
+      const headers = [
+        "Opcion",
+        "Costo adquisicion",
+        "VP costos futuros",
+        "VP residual",
+        "CCV total",
+        "CAE",
+        "Ahorro",
+        "Porcentaje ahorro",
+        "Ranking",
+        "Resultado"
+      ];
+      const rows = results.map(row => [
+        row.name,
+        row.acquisition,
+        row.futurePV,
+        row.residualPV,
+        row.ccv,
+        row.cae,
+        row.saving,
+        row.savingPct,
+        row.rank,
+        row.rank === 1 && validation.errors.length === 0 ? "Mejor valor por dinero" : "Alternativa evaluada"
+      ]);
+      const notes = [
+        [],
+        ["Nombre del bien o servicio", el.analysisName.value],
+        ["Finalidad publica", el.purpose.value],
+        ["Fecha del analisis", el.analysisDate.value],
+        ["Tasa de descuento", `${numberValue(el.discountRate.value)}%`],
+        ["Vida util", state.usefulLife],
+        ["Moneda", "S/"]
+      ];
+      const csv = [headers, ...rows, ...notes]
+        .map(row => row.map(csvCell).join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resultados-valor-por-dinero.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    async function copyReportPrompt() {
+      const text = el.reportPrompt.value;
+      try {
+        await navigator.clipboard.writeText(text);
+        el.copyStatus.textContent = "Prompt copiado al portapapeles.";
+      } catch (error) {
+        el.reportPrompt.focus();
+        el.reportPrompt.select();
+        document.execCommand("copy");
+        el.copyStatus.textContent = "Prompt seleccionado y copiado.";
+      }
+      setTimeout(() => {
+        el.copyStatus.textContent = "";
+      }, 2600);
+    }
+
+    el.optionsContainer.addEventListener("input", event => {
+      readInputChange(event.target);
+      renderResults();
+    });
+
+    el.optionsContainer.addEventListener("change", event => {
+      readInputChange(event.target);
+      renderResults();
+    });
+
+    el.optionsContainer.addEventListener("click", event => {
+      const action = event.target.dataset.action;
+      if (action === "add-cost") addCostItem(Number(event.target.dataset.option));
+      if (action === "remove-cost") removeCostItem(Number(event.target.dataset.option), Number(event.target.dataset.item));
+    });
+
+    [el.optionCount, el.discountRate, el.usefulLife, el.analysisName, el.purpose, el.analysisDate].forEach(input => {
+      input.addEventListener("input", () => {
+        if (input === el.optionCount || input === el.usefulLife) {
+          ensureStateShape();
+          renderOptions();
+        }
+        renderResults();
+      });
+    });
+
+    document.getElementById("printButton").addEventListener("click", () => window.print());
+    document.getElementById("downloadButton").addEventListener("click", downloadResultsCSV);
+    document.getElementById("sampleButton").addEventListener("click", loadSample);
+    document.getElementById("copyPromptButton").addEventListener("click", copyReportPrompt);
+
+    el.analysisDate.value = todayISO();
+    ensureStateShape();
+    renderOptions();
+    renderResults();
+  </script>
+</body>
+</html>
